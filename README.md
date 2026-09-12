@@ -24,6 +24,7 @@ npm test
 - Worldwide stocks with trading-currency prices and CHF-adjusted performance side by side.
 - Dashboard alert evaluation for split-adjusted historical-high discounts (default 10%), configurable rolling declines (default 5%, provider supplies a 1-day-to-1-month window), and CHF ETF dividend events.
 - `buildEmailAlertPayload` provides a provider-neutral email payload; delivery is intentionally not attempted without market-data and email credentials.
+- The dashboard's research candidates are a transparent, rule-based ranking for further research—not personalized financial advice or unconditional buy recommendations. Scores consider CHF denomination/hedging, all-time drawdown, recent rolling decline, dividend status, diversification/type, and quote data quality. Unhedged non-CHF instruments are explicitly flagged.
 
 ## Production boundaries
 

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { hasRollingDecline, isBelowHistoricalHigh, evaluateAlerts, buildEmailAlertPayload, allTimeAdjustedClosingHigh, highestCloseInWindow, evaluateHistoricalAlerts } from '../src/alerts.js';
 import { scanUniverse } from '../api/alerts/run.js';
 import { curatedUniverse } from '../api/lib/eodhd.js';
+import { rankResearchCandidates } from '../src/recommendations.js';
 
 const instrument = {ticker:'TEST',name:'Test ETF',type:'etf',market:'Worldwide',currency:'CHF',price:90,high:100,rollingDecline:5,dividend:{status:'Declared',exDate:'1 Sep',payDate:'5 Sep',amount:.2,yield:2}};
 
@@ -55,5 +56,16 @@ test('curates iShares Swiss Dividend ETF with ISIN and CHF dividend tracking', (
     icon:'CH',
     iconClass:'swiss-icon',
     dividend:{status:'Tracked',exDate:null,payDate:null,amount:null,yield:null}
+  });
+
+  test('ranks CHF-protected research candidates transparently and flags unhedged exposure', () => {
+    const candidates = rankResearchCandidates([
+      {ticker:'CHDVD',name:'iShares Swiss Dividend ETF (CH)',type:'etf',currency:'CHF',price:90,high:100,rollingDecline:6,chfReturn:1,change1d:1,dividend:{status:'Tracked'}},
+      {ticker:'VWRL',name:'Vanguard FTSE All-World',type:'etf',currency:'USD',price:90,high:100,rollingDecline:6,chfReturn:1,change1d:1}
+    ]);
+    assert.equal(candidates[0].instrument.ticker, 'CHDVD');
+    assert.equal(candidates[0].reasons.includes('CHF-denominated'), true);
+    assert.equal(candidates[1].flagged, true);
+    assert.match(candidates[1].reasons.at(-1), /Unhedged USD exposure/);
   });
 });

@@ -1,5 +1,6 @@
 import { provider } from './data.js';
 import { evaluateAlerts } from './alerts.js';
+import { rankResearchCandidates } from './recommendations.js';
 
 const money = (value, currency) => `${value.toLocaleString('en-CH',{minimumFractionDigits:2,maximumFractionDigits:2})} <span class="currency">${currency}</span>`;
 const el = (id) => document.getElementById(id);
@@ -28,6 +29,11 @@ function renderSupportingPanels() {
     return `<div class="dividend-row"><span class="rule-dot teal">₣</span><div><strong>${item.ticker} · ${item.dividend.status}</strong><small>Pay date ${payDate} · ${yieldText}</small></div><span class="dividend-amount">${amountText}</span></div>`;
   }).join('');
   document.querySelector('.alert-count').textContent = String(alerts.length);
+}
+
+function renderResearchCandidates() {
+  const candidates = rankResearchCandidates(allInstruments);
+  el('research-candidates').innerHTML = candidates.map(({ instrument, score, reasons, flagged }) => `<article class="candidate-card ${flagged ? 'candidate-flagged' : ''}"><div class="candidate-top"><div class="instrument"><span class="instrument-icon ${instrument.iconClass}">${instrument.icon}</span><div><strong>${instrument.ticker}</strong><small>${instrument.name}</small></div></div><span class="candidate-score">${score}/10</span></div><div class="candidate-chips">${reasons.map((reason) => `<span class="candidate-chip">${reason}</span>`).join('')}</div>${flagged ? '<p class="candidate-note">Research flag: unhedged non-CHF exposure; included for comparison, not CHF protection.</p>' : ''}</article>`).join('');
 }
 
 function showToast(message) {
@@ -64,6 +70,7 @@ const start = async () => {
   renderRows('explore-rows', allInstruments);
   renderRows('watchlist-rows', allInstruments.slice(0,8));
   renderSupportingPanels();
+  renderResearchCandidates();
   setupInteractions();
 };
 start();
