@@ -29,6 +29,10 @@ export async function eodhd(path, params = {}) {
   return payload;
 }
 
+export async function searchEodhd(query) {
+  return eodhd(`/search/${encodeURIComponent(query)}`);
+}
+
 function changePercent(today, previous) {
   return previous ? ((today - previous) / previous) * 100 : 0;
 }
@@ -48,5 +52,7 @@ export function normalizeInstrument(meta, history) {
 }
 
 export async function getInstrumentHistory(meta, from = '2020-01-01') {
-  return eodhd(`/eod/${meta.symbol}`, { from, period:'d', order:'a' });
+  const history = await eodhd(`/eod/${meta.symbol}`, { from, period:'d', order:'a' });
+  if (!Array.isArray(history) || history.length === 0) throw new Error(`EODHD returned no daily history for ${meta.symbol}.`);
+  return history;
 }

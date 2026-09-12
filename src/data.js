@@ -28,6 +28,7 @@ export const provider = {
   async getInstruments() {
     const response = await fetch('/api/instruments');
     if (!response.ok) throw new Error((await response.json()).error || 'Market data is unavailable.');
-    return response.json();
+    const payload = await response.json();
+    return payload.instruments ?? payload;
   }
 };
