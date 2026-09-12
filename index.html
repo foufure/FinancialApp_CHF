@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f9fc" />
+    <title>Helvetia Markets — CHF market watch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand"><span class="brand-mark">H</span><span>helvetia<span class="brand-accent">.</span></span></div>
+        <div class="workspace-label">MY WORKSPACE</div>
+        <nav class="nav" aria-label="Primary navigation">
+          <button class="nav-item active" data-view="overview"><span class="nav-icon">⌂</span>Overview</button>
+          <button class="nav-item" data-view="explore"><span class="nav-icon">⌕</span>Explore markets</button>
+          <button class="nav-item" data-view="watchlist"><span class="nav-icon">☆</span>Watchlist <span class="nav-count">8</span></button>
+          <button class="nav-item" data-view="alerts"><span class="nav-icon">♧</span>Alerts <span class="nav-count alert-count">4</span></button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="workspace-label">PREFERENCES</div>
+          <button class="nav-item"><span class="nav-icon">⚙</span>Settings</button>
+          <div class="profile"><div class="avatar">JD</div><div><strong>Jonathan Doe</strong><small>Personal account</small></div><span class="more">•••</span></div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="breadcrumb"><span>Workspace</span><b>/</b><strong id="page-title">Overview</strong></div>
+          <div class="top-actions"><span class="market-status"><i></i> Markets open</span><button class="icon-button" aria-label="Notifications">♧<em></em></button><div class="top-avatar">JD</div></div>
+        </header>
+
+        <div class="content">
+          <section id="overview-view" class="view active-view">
+            <div class="hero">
+              <div><p class="eyebrow">SATURDAY, 12 SEPTEMBER 2026</p><h1>Your CHF market watch</h1><p class="hero-copy">A focused view of global stocks and ETFs, with every return translated back to CHF.</p></div>
+              <button class="primary-button" id="add-alert"><span>＋</span> Create alert</button>
+            </div>
+
+            <div class="metric-grid">
+              <article class="metric-card"><div class="metric-label">Watchlist value <span class="info">i</span></div><div class="metric-value">CHF 84,260<span class="metric-change positive">+2.48%</span></div><div class="sparkline green"><span></span></div><small>vs. last close · CHF adjusted</small></article>
+              <article class="metric-card"><div class="metric-label">Opportunities <span class="tag">3 new</span></div><div class="metric-value">12<span class="metric-unit"> instruments</span></div><div class="mini-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><small>at least 10% below historical high</small></article>
+              <article class="metric-card"><div class="metric-label">Dividend watch <span class="info">i</span></div><div class="metric-value">CHF 1,240<span class="metric-unit"> est. / year</span></div><div class="dividend-line"><span>Next payment</span><strong>17 Sep · CHF 0.28</strong></div><small>across 4 CHF ETFs</small></article>
+            </div>
+
+            <div class="section-heading"><div><h2>Market pulse</h2><p>Curated instruments matching your CHF-first preferences</p></div><button class="text-button" data-view-target="explore">View all markets <span>→</span></button></div>
+            <div class="pulse-grid">
+              <article class="pulse-card"><div class="pulse-top"><span class="market-flag">🇨🇭</span><span class="market-name">Swiss market</span><span class="positive">+0.64%</span></div><strong>SMI</strong><div class="pulse-chart swiss"></div><small>12,145.20 · CHF</small></article>
+              <article class="pulse-card"><div class="pulse-top"><span class="market-flag">🌍</span><span class="market-name">Global equities</span><span class="positive">+1.82%</span></div><strong>MSCI World</strong><div class="pulse-chart world"></div><small>3,844.61 · CHF hedged</small></article>
+              <article class="pulse-card"><div class="pulse-top"><span class="market-flag">🇪🇺</span><span class="market-name">Europe</span><span class="negative">−0.28%</span></div><strong>STOXX 600</strong><div class="pulse-chart europe"></div><small>549.72 · EUR</small></article>
+            </div>
+
+            <div class="section-heading watch-heading"><div><h2>Watchlist</h2><p>8 instruments · sorted by opportunity</p></div><div class="view-toggle"><button class="selected">All</button><button>ETFs</button><button>Stocks</button></div></div>
+            <div class="table-wrap"><table class="market-table"><thead><tr><th>Instrument</th><th>Market</th><th>Price</th><th>1D</th><th>CHF performance</th><th>Distance from high</th><th></th></tr></thead><tbody id="instrument-rows"></tbody></table></div>
+
+            <div class="lower-grid">
+              <section class="panel"><div class="panel-heading"><div><h2>Active alerts</h2><p>Dashboard now · email-ready</p></div><button class="icon-button small" id="manage-alerts">•••</button></div><div id="alert-list"></div></section>
+              <section class="panel"><div class="panel-heading"><div><h2>Dividend calendar</h2><p>CHF ETFs in your watchlist</p></div><button class="text-button" data-view-target="watchlist">See calendar →</button></div><div id="dividend-list"></div></section>
+            </div>
+          </section>
+
+          <section id="explore-view" class="view"><div class="hero compact"><div><p class="eyebrow">DISCOVER</p><h1>Explore markets</h1><p class="hero-copy">Find CHF-denominated, CHF-hedged and global instruments in one place.</p></div></div><div class="filter-bar"><label class="search"><span>⌕</span><input id="search-input" placeholder="Search ticker, name or ISIN" /></label><button class="filter active-filter" data-filter="all">All markets</button><button class="filter" data-filter="etf">ETFs</button><button class="filter" data-filter="stock">Stocks</button><button class="filter" data-filter="chf">CHF first</button></div><div class="table-wrap"><table class="market-table"><thead><tr><th>Instrument</th><th>Market</th><th>Price</th><th>1D</th><th>CHF performance</th><th>Distance from high</th><th></th></tr></thead><tbody id="explore-rows"></tbody></table></div></section>
+          <section id="watchlist-view" class="view"><div class="hero compact"><div><p class="eyebrow">YOUR COLLECTION</p><h1>Watchlist</h1><p class="hero-copy">Your personal shortlist, with trading-currency and CHF-adjusted returns side by side.</p></div><button class="primary-button">＋ Add instrument</button></div><div class="table-wrap"><table class="market-table"><thead><tr><th>Instrument</th><th>Market</th><th>Price</th><th>1D</th><th>CHF performance</th><th>Distance from high</th><th></th></tr></thead><tbody id="watchlist-rows"></tbody></table></div></section>
+          <section id="alerts-view" class="view"><div class="hero compact"><div><p class="eyebrow">AUTOMATION</p><h1>Alerts</h1><p class="hero-copy">Stay close to opportunities and dividend dates. Email delivery is ready for your provider credentials.</p></div><button class="primary-button" id="add-alert-secondary">＋ Create alert</button></div><div class="alert-settings"><div class="alert-rule"><div class="rule-icon purple">↘</div><div><strong>Below historical high</strong><p>Notify when an instrument is at least <b>10%</b> below its split-adjusted high.</p></div><span class="status-pill on">Active</span></div><div class="alert-rule"><div class="rule-icon orange">%</div><div><strong>Rolling decline</strong><p>Notify on a configurable <b>5%</b> decline over a 1 day to 1 month rolling period.</p></div><span class="status-pill on">Active</span></div><div class="alert-rule"><div class="rule-icon teal">₣</div><div><strong>CHF ETF dividends</strong><p>Track declaration, ex-date, payment date, amount and yield for CHF ETFs.</p></div><span class="status-pill on">Active</span></div></div></section>
+        </div>
+      </main>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
