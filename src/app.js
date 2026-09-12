@@ -5,6 +5,8 @@ import { rankResearchCandidates } from './recommendations.js';
 const money = (value, currency) => `${value.toLocaleString('en-CH',{minimumFractionDigits:2,maximumFractionDigits:2})} <span class="currency">${currency}</span>`;
 const el = (id) => document.getElementById(id);
 let allInstruments = [];
+let providerWarnings = [];
+let candidateFilters = { type:'all', market:'all', protection:'all' };
 
 function instrumentRow(item) {
   const distance = Math.round((1 - item.price / item.high) * 100);
@@ -32,7 +34,16 @@ function renderSupportingPanels() {
 }
 
 function renderResearchCandidates() {
-  const candidates = rankResearchCandidates(allInstruments);
+  const filtered = allInstruments.filter((item) => (
+    (candidateFilters.type === 'all' || item.type === candidateFilters.type) &&
+    (candidateFilters.market === 'all' || item.market === candidateFilters.market) &&
+    (candidateFilters.protection === 'all' ||
+      (candidateFilters.protection === 'chf' && item.currency === 'CHF') ||
+      (candidateFilters.protection === 'hedged' && item.chfHedged))
+  ));
+  const candidates = rankResearchCandidates(filtered);
+  const status = `${allInstruments.length} instruments loaded · ${filtered.length} candidates after filters${providerWarnings.length ? ` · ${providerWarnings.length} provider warning${providerWarnings.length === 1 ? '' : 's'}` : ''}`;
+  el('candidate-status').textContent = status;
   el('research-candidates').innerHTML = candidates.map(({ instrument, score, reasons, flagged }) => `<article class="candidate-card ${flagged ? 'candidate-flagged' : ''}"><div class="candidate-top"><div class="instrument"><span class="instrument-icon ${instrument.iconClass}">${instrument.icon}</span><div><strong>${instrument.ticker}</strong><small>${instrument.name}</small></div></div><span class="candidate-score">${score}/10</span></div><div class="candidate-chips">${reasons.map((reason) => `<span class="candidate-chip">${reason}</span>`).join('')}</div>${flagged ? '<p class="candidate-note">Research flag: unhedged non-CHF exposure; included for comparison, not CHF protection.</p>' : ''}</article>`).join('');
 }
 
@@ -57,11 +68,18 @@ function setupInteractions() {
     renderRows('explore-rows', items);
   }));
   el('search-input').addEventListener('input', (event) => { const term = event.target.value.toLowerCase(); renderRows('explore-rows', allInstruments.filter((item) => `${item.ticker} ${item.name} ${item.market}`.toLowerCase().includes(term))); });
+  document.querySelectorAll('[data-candidate-filter]').forEach((control) => control.addEventListener('change', (event) => {
+    candidateFilters[event.target.dataset.candidateFilter] = event.target.value;
+    renderResearchCandidates();
+  }));
 }
 
 const start = async () => {
   try {
-    allInstruments = await provider.getInstruments();
+    const payload = await provider.getInstruments();
+    allInstruments = payload.instruments ?? payload;
+    providerWarnings = payload.warnings ?? [];
+    if (providerWarnings.length) showToast(`${providerWarnings.length} market-data warning${providerWarnings.length === 1 ? '' : 's'}; curated data retained.`);
   } catch (error) {
     allInstruments = [];
     showToast(error.message);

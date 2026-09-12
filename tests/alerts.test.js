@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hasRollingDecline, isBelowHistoricalHigh, evaluateAlerts, buildEmailAlertPayload, allTimeAdjustedClosingHigh, highestCloseInWindow, evaluateHistoricalAlerts } from '../src/alerts.js';
 import { scanUniverse } from '../api/alerts/run.js';
-import { curatedUniverse } from '../api/lib/eodhd.js';
+import { curatedUniverse, dedupeUniverse, filterDiscoveredUniverse, normalizeDiscoveryMeta, paginateUniverse } from '../api/lib/eodhd.js';
 import { rankResearchCandidates } from '../src/recommendations.js';
 
 const instrument = {ticker:'TEST',name:'Test ETF',type:'etf',market:'Worldwide',currency:'CHF',price:90,high:100,rollingDecline:5,dividend:{status:'Declared',exDate:'1 Sep',payDate:'5 Sep',amount:.2,yield:2}};
@@ -57,8 +57,9 @@ test('curates iShares Swiss Dividend ETF with ISIN and CHF dividend tracking', (
     iconClass:'swiss-icon',
     dividend:{status:'Tracked',exDate:null,payDate:null,amount:null,yield:null}
   });
+});
 
-  test('ranks CHF-protected research candidates transparently and flags unhedged exposure', () => {
+test('ranks CHF-protected research candidates transparently and flags unhedged exposure', () => {
     const candidates = rankResearchCandidates([
       {ticker:'CHDVD',name:'iShares Swiss Dividend ETF (CH)',type:'etf',currency:'CHF',price:90,high:100,rollingDecline:6,chfReturn:1,change1d:1,dividend:{status:'Tracked'}},
       {ticker:'VWRL',name:'Vanguard FTSE All-World',type:'etf',currency:'USD',price:90,high:100,rollingDecline:6,chfReturn:1,change1d:1}
@@ -67,5 +68,18 @@ test('curates iShares Swiss Dividend ETF with ISIN and CHF dividend tracking', (
     assert.equal(candidates[0].reasons.includes('CHF-denominated'), true);
     assert.equal(candidates[1].flagged, true);
     assert.match(candidates[1].reasons.at(-1), /Unhedged USD exposure/);
-  });
+});
+
+test('normalizes, deduplicates, and filters imported exchange records', () => {
+  const rows = [
+    normalizeDiscoveryMeta({Code:'CHDVD',Name:'iShares Swiss Dividend ETF',Type:'ETF',Currency:'CHF',ISIN:'CH0237935637'}, 'SW'),
+    normalizeDiscoveryMeta({Code:'CHDVD',Name:'Duplicate listing',Type:'ETF',Currency:'CHF',ISIN:'CH0237935637'}, 'SW'),
+    normalizeDiscoveryMeta({Code:'VWRL',Name:'Vanguard FTSE All-World',Type:'ETF',Currency:'USD'}, 'LSE'),
+    normalizeDiscoveryMeta({Code:'NESN',Name:'Nestle SA',Type:'Common Stock',Currency:'CHF'}, 'SW')
+  ];
+  const deduped = dedupeUniverse(rows);
+  assert.equal(deduped.length, 3);
+  assert.equal(filterDiscoveredUniverse(deduped, { type:'etf', chfOnly:true }).length, 1);
+  assert.equal(filterDiscoveredUniverse(deduped, { type:'stock', market:'Switzerland' })[0].ticker, 'NESN');
+  assert.deepEqual(paginateUniverse(deduped, 1, 2).map((item) => item.ticker), ['NESN']);
 });

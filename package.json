@@ -4,6 +4,6 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/alerts.test.js",
-    "build": "node --check src/alerts.js && node --check src/app.js && node --check src/data.js && node --check api/instruments.js && node --check api/search.js && node --check api/alerts/run.js && node --check api/admin/diagnostics.js"
+    "build": "node --check src/alerts.js && node --check src/app.js && node --check src/data.js && node --check src/recommendations.js && node --check api/lib/eodhd.js && node --check api/instruments.js && node --check api/search.js && node --check api/alerts/run.js && node --check api/admin/diagnostics.js"
   }
 }
