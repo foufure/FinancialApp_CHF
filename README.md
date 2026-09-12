@@ -31,6 +31,7 @@ npm test
 - `api/alerts/run.js` evaluates the all-time split-adjusted closing high rule and the highest close in a selected 1–30 day window, then sends matching alerts through Resend. It requires `RESEND_API_KEY`, `ALERT_FROM_EMAIL` and `ALERT_TO_EMAIL` and returns explicit missing-config errors.
 - `api/admin/diagnostics.js` is an admin-only, token-gated smoke test for `NESN.SW` (SIX) and `EURCHF.FOREX`. Set `ADMIN_DIAGNOSTIC_TOKEN` in Vercel, then call it with `x-admin-diagnostic-token`; the response contains only status, row count, date, close and adjusted-close presence. It never returns the EODHD token or upstream response body.
 - `vercel.json` schedules the alert run once each weekday trading day at 18:00 UTC. Change the Vercel cron expression for a different schedule; `ALERT_SCHEDULE` labels the configured schedule.
+- `vercel.json` explicitly sets `outputDirectory` to `.` and `buildCommand` to `npm run build`. This is intentional: the app's `index.html`, `styles.css`, and `src/` are at repository root, while `api/` remains deployed as serverless functions. Do not set the Vercel Output Directory to `public`, `dist`, or `build`.
 - `.env.local` is intentionally gitignored. Copy `.env.example` and supply local values. In production, put the same secrets in Vercel Environment Variables. Supabase variables are reserved for persistence/auth and alert deduplication in the next slice.
 
 No real market-data or email credentials are included in this repository.
@@ -38,9 +39,10 @@ No real market-data or email credentials are included in this repository.
 ## Deployment verification
 
 1. In Vercel, confirm the project is connected to this repository and that the **Root Directory** is the repository root (the folder containing `index.html`, `api/`, and `vercel.json`).
-2. Redeploy the current branch/commit after adding all variables to the **Production** environment. A 404 at `/` and `/api/instruments` means the URL is not serving this repository or the deployment has not been created; it is not an EODHD response.
-3. Verify the public routes: `/`, `/api/instruments`, and `/api/search?q=NESN`.
-4. Verify the protected diagnostic locally or in a secure shell. Never put the token in a URL, browser history, screenshot, commit, or chat:
+2. In **Build and Deployment Settings**, set **Framework Preset** to `Other`, **Build Command** to `npm run build`, **Output Directory** to `.`, and **Install Command** to `npm install` (or leave the install command default). Clear any `public` value; the repository does not contain a `public` directory.
+3. Redeploy the current `main` commit after adding all variables to the **Production** environment. A 404 at `/` and `/api/instruments` means the URL is not serving this repository or the deployment has not been created; it is not an EODHD response.
+4. Verify the public routes: `/`, `/api/instruments`, and `/api/search?q=NESN`.
+5. Verify the protected diagnostic locally or in a secure shell. Never put the token in a URL, browser history, screenshot, commit, or chat:
 
 ```bash
 curl -H "x-admin-diagnostic-token: $ADMIN_DIAGNOSTIC_TOKEN" \
