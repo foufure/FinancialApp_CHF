@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hasRollingDecline, isBelowHistoricalHigh, evaluateAlerts, buildEmailAlertPayload, allTimeAdjustedClosingHigh, highestCloseInWindow, evaluateHistoricalAlerts } from '../src/alerts.js';
+import { scanUniverse } from '../api/alerts/run.js';
 
 const instrument = {ticker:'TEST',name:'Test ETF',type:'etf',market:'Worldwide',currency:'CHF',price:90,high:100,rollingDecline:5,dividend:{status:'Declared',exDate:'1 Sep',payDate:'5 Sep',amount:.2,yield:2}};
 
@@ -26,4 +27,16 @@ test('uses all-time and selected-window adjusted closing highs', () => {
   assert.equal(allTimeAdjustedClosingHigh(history), 130);
   assert.equal(highestCloseInWindow(history, 2), 120);
   assert.deepEqual(evaluateHistoricalAlerts(history, {windowDays:2}).map((alert) => alert.kind), ['high-discount','rolling-decline']);
+});
+
+test('scans supported symbols when one curated symbol is unavailable', async () => {
+  const history = [{adjusted_close:100},{adjusted_close:130},{adjusted_close:110}];
+  const universe = [{ticker:'GOOD',name:'Supported'},{ticker:'MISSING',name:'Unavailable'}];
+  const result = await scanUniverse(universe, async (meta) => {
+    if (meta.ticker === 'MISSING') throw new Error('EODHD request failed (404).');
+    return history;
+  }, 30);
+  assert.equal(result.findings[0].ticker, 'GOOD');
+  assert.equal(result.warnings.length, 1);
+  assert.match(result.warnings[0], /404/);
 });
