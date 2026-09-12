@@ -21,7 +21,12 @@ function renderSupportingPanels() {
     return `<div class="alert-row"><span class="rule-dot ${klass}">${icon}</span><div><strong>${alert.message}</strong><small>${alert.kind === 'dividend' ? 'Dividend status' : 'Price movement'} · ${alert.emailReady ? 'Email ready' : 'Dashboard only'}</small></div><span class="alert-time">${alert.createdAt}</span></div>`;
   }).join('');
   const dividends = allInstruments.filter((item) => item.dividend && item.currency === 'CHF').slice(0,3);
-  el('dividend-list').innerHTML = dividends.map((item) => `<div class="dividend-row"><span class="rule-dot teal">₣</span><div><strong>${item.ticker} · ${item.dividend.status}</strong><small>Pay date ${item.dividend.payDate} · ${item.dividend.yield.toFixed(1)}% yield</small></div><span class="dividend-amount">CHF ${item.dividend.amount.toFixed(2)}</span></div>`).join('');
+  el('dividend-list').innerHTML = dividends.map((item) => {
+    const payDate = item.dividend.payDate ?? 'Date pending';
+    const yieldText = item.dividend.yield == null ? 'Yield pending' : `${item.dividend.yield.toFixed(1)}% yield`;
+    const amountText = item.dividend.amount == null ? 'Amount pending' : `CHF ${item.dividend.amount.toFixed(2)}`;
+    return `<div class="dividend-row"><span class="rule-dot teal">₣</span><div><strong>${item.ticker} · ${item.dividend.status}</strong><small>Pay date ${payDate} · ${yieldText}</small></div><span class="dividend-amount">${amountText}</span></div>`;
+  }).join('');
   document.querySelector('.alert-count').textContent = String(alerts.length);
 }
 

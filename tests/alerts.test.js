@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hasRollingDecline, isBelowHistoricalHigh, evaluateAlerts, buildEmailAlertPayload, allTimeAdjustedClosingHigh, highestCloseInWindow, evaluateHistoricalAlerts } from '../src/alerts.js';
 import { scanUniverse } from '../api/alerts/run.js';
+import { curatedUniverse } from '../api/lib/eodhd.js';
 
 const instrument = {ticker:'TEST',name:'Test ETF',type:'etf',market:'Worldwide',currency:'CHF',price:90,high:100,rollingDecline:5,dividend:{status:'Declared',exDate:'1 Sep',payDate:'5 Sep',amount:.2,yield:2}};
 
@@ -39,4 +40,20 @@ test('scans supported symbols when one curated symbol is unavailable', async () 
   assert.equal(result.findings[0].ticker, 'GOOD');
   assert.equal(result.warnings.length, 1);
   assert.match(result.warnings[0], /404/);
+});
+
+test('curates iShares Swiss Dividend ETF with ISIN and CHF dividend tracking', () => {
+  const instrument = curatedUniverse.find((item) => item.ticker === 'CHDVD');
+  assert.deepEqual(instrument, {
+    symbol:'CHDVD.SW',
+    ticker:'CHDVD',
+    isin:'CH0237935637',
+    name:'iShares Swiss Dividend ETF (CH)',
+    type:'etf',
+    market:'Switzerland',
+    currency:'CHF',
+    icon:'CH',
+    iconClass:'swiss-icon',
+    dividend:{status:'Tracked',exDate:null,payDate:null,amount:null,yield:null}
+  });
 });

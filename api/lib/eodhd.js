@@ -3,6 +3,7 @@ const EODHD_BASE_URL = 'https://eodhd.com/api';
 export const curatedUniverse = [
   { symbol:'CHSPI.SW', ticker:'CHSPI', name:'Swiss Performance ETF', type:'etf', market:'Switzerland', currency:'CHF', icon:'CH', iconClass:'swiss-icon' },
   { symbol:'CSSMI.SW', ticker:'CSSMI', name:'Swiss SMI ETF', type:'etf', market:'Switzerland', currency:'CHF', icon:'CH', iconClass:'swiss-icon' },
+  { symbol:'CHDVD.SW', ticker:'CHDVD', isin:'CH0237935637', name:'iShares Swiss Dividend ETF (CH)', type:'etf', market:'Switzerland', currency:'CHF', icon:'CH', iconClass:'swiss-icon', dividend:{status:'Tracked',exDate:null,payDate:null,amount:null,yield:null} },
   { symbol:'IWCH.SW', ticker:'IWCH', name:'iShares MSCI World CHF Hdg', type:'etf', market:'Worldwide', currency:'CHF', icon:'W', iconClass:'world-icon' },
   { symbol:'VWRL.SW', ticker:'VWRL', name:'Vanguard FTSE All-World', type:'etf', market:'Worldwide', currency:'USD', icon:'W', iconClass:'world-icon' },
   { symbol:'NOVN.SW', ticker:'NOVN', name:'Novartis AG', type:'stock', market:'Switzerland', currency:'CHF', icon:'N', iconClass:'blue-icon' },

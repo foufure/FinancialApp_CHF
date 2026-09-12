@@ -45,7 +45,10 @@ export function evaluateAlerts(instruments, settings = {}) {
   for (const instrument of instruments) {
     if (isBelowHistoricalHigh(instrument, highThreshold)) alerts.push({kind:'high-discount',ticker:instrument.ticker,message:`${instrument.ticker} is ${Math.round((1 - instrument.price / instrument.high) * 100)}% below its historical high`,createdAt:'Now',emailReady:true});
     if (hasRollingDecline(instrument, declineThreshold)) alerts.push({kind:'rolling-decline',ticker:instrument.ticker,message:`${instrument.ticker} declined ${instrument.rollingDecline.toFixed(1)}% over the selected rolling period`,createdAt:'Now',emailReady:true});
-    if (hasDividendEvent(instrument)) alerts.push({kind:'dividend',ticker:instrument.ticker,message:`${instrument.ticker} dividend ${instrument.dividend.status.toLowerCase()} · CHF ${instrument.dividend.amount.toFixed(2)}`,createdAt:instrument.dividend.payDate,emailReady:true});
+    if (hasDividendEvent(instrument)) {
+      const amount = instrument.dividend.amount == null ? 'amount pending' : `CHF ${instrument.dividend.amount.toFixed(2)}`;
+      alerts.push({kind:'dividend',ticker:instrument.ticker,message:`${instrument.ticker} dividend ${instrument.dividend.status.toLowerCase()} · ${amount}`,createdAt:instrument.dividend.payDate ?? 'Tracked',emailReady:true});
+    }
   }
   return alerts;
 }
